@@ -159,7 +159,32 @@ The application will typically be available at `http://localhost:3000` or simila
 |--------|-------------|---------|
 | `--project-dir` | Directory for the project | `./autonomous_demo_project` |
 | `--max-iterations` | Max agent iterations | Unlimited |
-| `--model` | Claude model to use | `claude-sonnet-4-5-20250929` |
+| `--model` | Claude model for all phases | `claude-sonnet-4-5-20250929` |
+| `--init-model` | Model for init/onboarding (overrides `--model`) | Same as `--model` |
+| `--code-model` | Model for coding phases (overrides `--model`) | Same as `--model` |
+
+### Multi-Model Configuration
+
+You can use different models for different phases to optimize cost and performance:
+
+```bash
+# Use Haiku for setup (cheaper), Sonnet for coding (more capable)
+python autonomous_agent_demo.py --project-dir ./my_project \
+  --init-model claude-3-5-haiku-20241022 \
+  --code-model claude-sonnet-4-5-20250929
+
+# Use Opus for complex coding tasks
+python autonomous_agent_demo.py --project-dir ./my_project \
+  --code-model claude-opus-4-20250514
+```
+
+**Recommended configurations:**
+
+| Use Case | Init Model | Code Model |
+|----------|-----------|------------|
+| Cost-optimized | `claude-3-5-haiku-20241022` | `claude-sonnet-4-5-20250929` |
+| Balanced | `claude-sonnet-4-5-20250929` | `claude-sonnet-4-5-20250929` |
+| Maximum quality | `claude-sonnet-4-5-20250929` | `claude-opus-4-20250514` |
 
 ## Customization
 

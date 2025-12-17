@@ -136,7 +136,8 @@ async def run_agent_session(
 
 async def run_autonomous_agent(
     project_dir: Path,
-    model: str,
+    init_model: str,
+    code_model: str,
     max_iterations: Optional[int] = None,
 ) -> None:
     """
@@ -144,14 +145,19 @@ async def run_autonomous_agent(
 
     Args:
         project_dir: Directory for the project
-        model: Claude model to use
+        init_model: Claude model for initializer/onboarding phases
+        code_model: Claude model for coding phases
         max_iterations: Maximum number of iterations (None for unlimited)
     """
     print("\n" + "=" * 70)
     print("  AUTONOMOUS CODING AGENT DEMO")
     print("=" * 70)
     print(f"\nProject directory: {project_dir}")
-    print(f"Model: {model}")
+    if init_model == code_model:
+        print(f"Model: {init_model}")
+    else:
+        print(f"Init/Onboarding model: {init_model}")
+        print(f"Coding model: {code_model}")
     if max_iterations:
         print(f"Max iterations: {max_iterations}")
     else:
@@ -215,18 +221,21 @@ async def run_autonomous_agent(
         is_first_session = (iteration == 1)
         print_session_header(iteration, is_first_session)
 
-        # Create client (fresh context)
-        client = create_client(project_dir, model)
-
-        # Choose prompt based on session type
+        # Choose prompt and model based on session type
         if session_type == 'initializer':
             prompt = get_initializer_prompt()
+            current_model = init_model
             session_type = 'coding'  # Switch to coding after initializer
         elif session_type == 'onboarding':
             prompt = get_onboarding_prompt()
+            current_model = init_model
             session_type = 'coding'  # Switch to coding after onboarding
         else:  # session_type == 'coding'
             prompt = get_coding_prompt()
+            current_model = code_model
+
+        # Create client with the appropriate model (fresh context)
+        client = create_client(project_dir, current_model)
 
         # Run session with async context manager
         async with client:

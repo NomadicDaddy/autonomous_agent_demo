@@ -42,8 +42,11 @@ Examples:
   # Onboard existing codebase (analyzes existing code)
   python autonomous_agent_demo.py --project-dir ./existing_app
 
-  # Use a specific model
+  # Use a specific model for all phases
   python autonomous_agent_demo.py --project-dir ./claude_clone --model claude-sonnet-4-5-20250929
+
+  # Use different models for init/onboarding vs coding (cost optimization)
+  python autonomous_agent_demo.py --project-dir ./claude_clone --init-model claude-3-5-haiku-20241022 --code-model claude-sonnet-4-5-20250929
 
   # Limit iterations for testing
   python autonomous_agent_demo.py --project-dir ./claude_clone --max-iterations 5
@@ -79,7 +82,21 @@ Environment Variables:
         "--model",
         type=str,
         default=DEFAULT_MODEL,
-        help=f"Claude model to use (default: {DEFAULT_MODEL})",
+        help=f"Claude model to use for all phases (default: {DEFAULT_MODEL})",
+    )
+
+    parser.add_argument(
+        "--init-model",
+        type=str,
+        default=None,
+        help="Model for initializer/onboarding phases (overrides --model for first session)",
+    )
+
+    parser.add_argument(
+        "--code-model",
+        type=str,
+        default=None,
+        help="Model for coding phases (overrides --model for coding sessions)",
     )
 
     return parser.parse_args()
@@ -108,12 +125,18 @@ def main() -> None:
             # Prepend generations/ to relative paths
             project_dir = Path("generations") / project_dir
 
+    # Determine effective models
+    # --init-model and --code-model override --model for their respective phases
+    init_model = args.init_model if args.init_model else args.model
+    code_model = args.code_model if args.code_model else args.model
+
     # Run the agent
     try:
         asyncio.run(
             run_autonomous_agent(
                 project_dir=project_dir,
-                model=args.model,
+                init_model=init_model,
+                code_model=code_model,
                 max_iterations=args.max_iterations,
             )
         )
