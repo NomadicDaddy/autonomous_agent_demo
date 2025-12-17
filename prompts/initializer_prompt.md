@@ -19,8 +19,13 @@ needs to be built.
 ```json
 [
   {
+    "area": "backend",
     "category": "functional",
     "description": "Brief description of the feature and what this test verifies",
+    "priority": "critical",
+    "status": "open",
+    "created_at": "2025-01-15",
+    "closed_at": null,
     "steps": [
       "Step 1: Navigate to relevant page",
       "Step 2: Perform action",
@@ -29,8 +34,13 @@ needs to be built.
     "passes": false
   },
   {
+    "area": "frontend",
     "category": "style",
     "description": "Brief description of UI/UX requirement",
+    "priority": "medium",
+    "status": "open",
+    "created_at": "2025-01-15",
+    "closed_at": null,
     "steps": [
       "Step 1: Navigate to page",
       "Step 2: Take screenshot",
@@ -41,13 +51,25 @@ needs to be built.
 ]
 ```
 
+**Field Definitions:**
+- **area**: The system area - one of: `database`, `backend`, `frontend`, `testing`, `security`, `devex`, `docs`
+- **category**: The type of test - one of: `functional`, `style`, `security`, `performance`, `accessibility`
+- **description**: Brief description of the feature and what this test verifies
+- **priority**: Importance level - one of: `critical`, `high`, `medium`, `low`
+- **status**: Current state - one of: `open`, `in_progress`, `resolved`, `deferred`
+- **created_at**: Date feature was added (YYYY-MM-DD format)
+- **closed_at**: Date feature was completed (null if not yet resolved)
+- **steps**: Array of testing steps
+- **passes**: Whether the feature passes testing (boolean)
+
 **Requirements for feature_list.json:**
 - Minimum 200 features total with testing steps for each
-- Both "functional" and "style" categories
+- Use appropriate `area` and `category` for each feature
 - Mix of narrow tests (2-5 steps) and comprehensive tests (10+ steps)
 - At least 25 tests MUST have 10+ steps each
-- Order features by priority: fundamental features first
-- ALL tests start with "passes": false
+- Order features by priority: `critical` first, then `high`, `medium`, `low`
+- ALL tests start with `"passes": false` and `"status": "open"`
+- Set `created_at` to today's date for all initial features
 - Cover every feature in the spec exhaustively
 
 **CRITICAL INSTRUCTION:**

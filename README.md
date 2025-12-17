@@ -136,6 +136,48 @@ my_project/
 └── [application files]       # Generated application code
 ```
 
+## Feature List Schema
+
+The `feature_list.json` file uses an enhanced schema with rich metadata for better tracking:
+
+```json
+{
+  "area": "backend",
+  "category": "functional",
+  "description": "User can log in with email and password",
+  "priority": "critical",
+  "status": "open",
+  "created_at": "2025-01-15",
+  "closed_at": null,
+  "steps": [
+    "Step 1: Navigate to login page",
+    "Step 2: Enter credentials",
+    "Step 3: Verify login success"
+  ],
+  "passes": false
+}
+```
+
+**Field Definitions:**
+
+| Field | Values | Description |
+|-------|--------|-------------|
+| `area` | `database`, `backend`, `frontend`, `testing`, `security`, `devex`, `docs` | System area |
+| `category` | `functional`, `style`, `security`, `performance`, `accessibility` | Test type |
+| `priority` | `critical`, `high`, `medium`, `low` | Implementation priority |
+| `status` | `open`, `in_progress`, `resolved`, `deferred` | Current state |
+| `created_at` | `YYYY-MM-DD` | Date feature was added |
+| `closed_at` | `YYYY-MM-DD` or `null` | Date feature was completed |
+| `steps` | Array of strings | Testing steps |
+| `passes` | `true` or `false` | Whether feature passes testing |
+
+**Progress Display:**
+
+The agent displays progress summaries including:
+- Overall passing/total counts
+- Status breakdown (open, in_progress, resolved, deferred)
+- Priority breakdown (critical, high, medium, low)
+
 ## Running the Generated Application
 
 After the agent completes (or pauses), you can run the generated application:

@@ -68,7 +68,20 @@ For example, if this were a chat app, you should perform a test that logs into t
 
 ### STEP 4: CHOOSE ONE FEATURE TO IMPLEMENT
 
-Look at feature_list.json and find the highest-priority feature with "passes": false.
+Look at feature_list.json and find the highest-priority feature with `"passes": false`.
+
+**Priority Order:**
+1. Features with `"priority": "critical"` first
+2. Then `"priority": "high"`
+3. Then `"priority": "medium"`
+4. Finally `"priority": "low"`
+
+Within each priority level, prefer features with `"status": "open"` over `"status": "deferred"`.
+
+Before starting work, update the feature's status to `"in_progress"`:
+```json
+"status": "in_progress"
+```
 
 Focus on completing one feature perfectly and completing its testing steps in this session before moving on to other features.
 It's ok if you only complete one feature in this session, as there will be more sessions later that continue to make progress.
@@ -105,16 +118,21 @@ Use browser automation tools:
 
 ### STEP 7: UPDATE feature_list.json (CAREFULLY!)
 
-**YOU CAN ONLY MODIFY ONE FIELD: "passes"**
+**YOU CAN ONLY MODIFY THESE FIELDS:**
 
-After thorough verification, change:
+After thorough verification, update the feature:
 ```json
-"passes": false
+"passes": true,
+"status": "resolved",
+"closed_at": "2025-01-15"
 ```
-to:
-```json
-"passes": true
-```
+
+Set `closed_at` to today's date when marking a feature as resolved.
+
+**ALLOWED FIELD CHANGES:**
+- `"passes"`: `false` → `true` (after verification)
+- `"status"`: `"open"` → `"in_progress"` → `"resolved"` (or `"deferred"` if blocked)
+- `"closed_at"`: `null` → today's date (when resolved)
 
 **NEVER:**
 - Remove tests
@@ -122,6 +140,7 @@ to:
 - Modify test steps
 - Combine or consolidate tests
 - Reorder tests
+- Change `area`, `category`, `priority`, or `created_at` fields
 
 **ONLY CHANGE "passes" FIELD AFTER VERIFICATION WITH SCREENSHOTS.**
 

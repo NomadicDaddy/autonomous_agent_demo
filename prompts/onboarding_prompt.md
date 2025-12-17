@@ -116,8 +116,13 @@ create `feature_list.json` with detailed test cases.
 ```json
 [
   {
+    "area": "backend",
     "category": "functional",
     "description": "User can log in with email and password",
+    "priority": "critical",
+    "status": "resolved",
+    "created_at": "2025-01-15",
+    "closed_at": "2025-01-15",
     "steps": [
       "Step 1: Navigate to login page",
       "Step 2: Enter email and password",
@@ -128,8 +133,13 @@ create `feature_list.json` with detailed test cases.
     "passes": true
   },
   {
+    "area": "backend",
     "category": "functional",
     "description": "User can reset forgotten password",
+    "priority": "high",
+    "status": "open",
+    "created_at": "2025-01-15",
+    "closed_at": null,
     "steps": [
       "Step 1: Navigate to login page",
       "Step 2: Click 'Forgot password' link",
@@ -140,8 +150,13 @@ create `feature_list.json` with detailed test cases.
     "passes": false
   },
   {
+    "area": "frontend",
     "category": "style",
     "description": "Login page matches design system",
+    "priority": "medium",
+    "status": "open",
+    "created_at": "2025-01-15",
+    "closed_at": null,
     "steps": [
       "Step 1: Navigate to login page",
       "Step 2: Take screenshot",
@@ -154,14 +169,26 @@ create `feature_list.json` with detailed test cases.
 ]
 ```
 
+**Field Definitions:**
+- **area**: The system area - one of: `database`, `backend`, `frontend`, `testing`, `security`, `devex`, `docs`
+- **category**: The type of test - one of: `functional`, `style`, `security`, `performance`, `accessibility`
+- **description**: Brief description of the feature and what this test verifies
+- **priority**: Importance level - one of: `critical`, `high`, `medium`, `low`
+- **status**: Current state - one of: `open`, `in_progress`, `resolved`, `deferred`
+- **created_at**: Date feature was added (YYYY-MM-DD format)
+- **closed_at**: Date feature was completed (null if not yet resolved)
+- **steps**: Array of testing steps
+- **passes**: Whether the feature passes testing (boolean)
+
 **Requirements for feature_list.json:**
 - Minimum 200 features total with testing steps for each
-- Both "functional" and "style" categories
+- Use appropriate `area` and `category` for each feature
 - Mix of narrow tests (2-5 steps) and comprehensive tests (10+ steps)
 - At least 25 tests MUST have 10+ steps each
-- Order features by priority: fundamental features first
-- Existing verified features have "passes": true
-- Missing or broken features have "passes": false
+- Order features by priority: `critical` first, then `high`, `medium`, `low`
+- Existing verified features have `"passes": true` and `"status": "resolved"` with `closed_at` set
+- Missing or broken features have `"passes": false` and `"status": "open"`
+- Set `created_at` to today's date for all features
 - Cover every feature in the spec AND existing codebase exhaustively
 - Include technical debt as features to fix
 
