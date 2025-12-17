@@ -54,6 +54,9 @@ Examples:
   # Continue existing project
   python autonomous_agent_demo.py --project-dir ./claude_clone
 
+  # Set idle timeout (abort if no output for N seconds)
+  python autonomous_agent_demo.py --project-dir ./claude_clone --idle-timeout 300
+
 How it works:
   - Empty directory: Uses initializer agent to create new app from spec
   - Existing code without feature_list.json: Uses onboarding agent to analyze code
@@ -99,6 +102,13 @@ Environment Variables:
         help="Model for coding phases (overrides --model for coding sessions)",
     )
 
+    parser.add_argument(
+        "--idle-timeout",
+        type=int,
+        default=180,
+        help="Abort session if no output for N seconds (default: 180). Set to 0 to disable.",
+    )
+
     return parser.parse_args()
 
 
@@ -138,6 +148,7 @@ def main() -> None:
                 init_model=init_model,
                 code_model=code_model,
                 max_iterations=args.max_iterations,
+                idle_timeout=args.idle_timeout if args.idle_timeout > 0 else None,
             )
         )
     except KeyboardInterrupt:

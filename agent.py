@@ -18,6 +18,53 @@ from prompts import get_initializer_prompt, get_coding_prompt, get_onboarding_pr
 
 # Configuration
 AUTO_CONTINUE_DELAY_SECONDS = 3
+DEFAULT_IDLE_TIMEOUT = 180  # Default idle timeout in seconds
+
+
+class IdleTimeoutError(Exception):
+    """Raised when the agent session exceeds the idle timeout."""
+    pass
+
+
+async def async_iter_with_timeout(async_iter, timeout_seconds: Optional[float]):
+    """
+    Wrap an async iterator with an idle timeout.
+
+    If no item is yielded within timeout_seconds, raises IdleTimeoutError.
+    If timeout_seconds is None, no timeout is applied.
+
+    Args:
+        async_iter: The async iterator to wrap
+        timeout_seconds: Maximum seconds to wait for each item (None to disable)
+
+    Yields:
+        Items from the underlying async iterator
+
+    Raises:
+        IdleTimeoutError: If timeout_seconds passes without receiving an item
+    """
+    if timeout_seconds is None:
+        # No timeout - just pass through
+        async for item in async_iter:
+            yield item
+        return
+
+    # Get the async iterator
+    aiter = async_iter.__aiter__()
+
+    while True:
+        try:
+            # Wait for the next item with timeout
+            item = await asyncio.wait_for(aiter.__anext__(), timeout=timeout_seconds)
+            yield item
+        except StopAsyncIteration:
+            # Iterator exhausted normally
+            return
+        except asyncio.TimeoutError:
+            # Idle timeout exceeded
+            raise IdleTimeoutError(
+                f"Session idle timeout: no output received for {timeout_seconds} seconds"
+            )
 
 
 def has_existing_codebase(project_dir: Path) -> bool:
@@ -64,6 +111,7 @@ async def run_agent_session(
     client: ClaudeSDKClient,
     message: str,
     project_dir: Path,
+    idle_timeout: Optional[float] = None,
 ) -> tuple[str, str]:
     """
     Run a single agent session using Claude Agent SDK.
@@ -72,21 +120,27 @@ async def run_agent_session(
         client: Claude SDK client
         message: The prompt to send
         project_dir: Project directory path
+        idle_timeout: Seconds to wait for output before aborting (None to disable)
 
     Returns:
         (status, response_text) where status is:
         - "continue" if agent should continue working
+        - "idle_timeout" if session was aborted due to idle timeout
         - "error" if an error occurred
     """
-    print("Sending prompt to Claude Agent SDK...\n")
+    if idle_timeout:
+        print(f"Sending prompt to Claude Agent SDK (idle timeout: {idle_timeout}s)...\n")
+    else:
+        print("Sending prompt to Claude Agent SDK...\n")
 
     try:
         # Send the query
         await client.query(message)
 
         # Collect response text and show tool use
+        # Wrap the response iterator with idle timeout detection
         response_text = ""
-        async for msg in client.receive_response():
+        async for msg in async_iter_with_timeout(client.receive_response(), idle_timeout):
             msg_type = type(msg).__name__
 
             # Handle AssistantMessage (text and tool use)
@@ -129,6 +183,12 @@ async def run_agent_session(
         print("\n" + "-" * 70 + "\n")
         return "continue", response_text
 
+    except IdleTimeoutError as e:
+        print(f"\n\n{'=' * 70}")
+        print(f"  IDLE TIMEOUT: {e}")
+        print(f"{'=' * 70}\n")
+        return "idle_timeout", str(e)
+
     except Exception as e:
         print(f"Error during agent session: {e}")
         return "error", str(e)
@@ -139,6 +199,7 @@ async def run_autonomous_agent(
     init_model: str,
     code_model: str,
     max_iterations: Optional[int] = None,
+    idle_timeout: Optional[int] = None,
 ) -> None:
     """
     Run the autonomous agent loop.
@@ -148,6 +209,7 @@ async def run_autonomous_agent(
         init_model: Claude model for initializer/onboarding phases
         code_model: Claude model for coding phases
         max_iterations: Maximum number of iterations (None for unlimited)
+        idle_timeout: Seconds to wait for output before aborting session (None to disable)
     """
     print("\n" + "=" * 70)
     print("  AUTONOMOUS CODING AGENT DEMO")
@@ -162,6 +224,8 @@ async def run_autonomous_agent(
         print(f"Max iterations: {max_iterations}")
     else:
         print("Max iterations: Unlimited (will run until completion)")
+    if idle_timeout:
+        print(f"Idle timeout: {idle_timeout}s")
     print()
 
     # Create project directory
@@ -239,11 +303,20 @@ async def run_autonomous_agent(
 
         # Run session with async context manager
         async with client:
-            status, response = await run_agent_session(client, prompt, project_dir)
+            status, response = await run_agent_session(
+                client, prompt, project_dir, idle_timeout=idle_timeout
+            )
 
         # Handle status
         if status == "continue":
             print(f"\nAgent will auto-continue in {AUTO_CONTINUE_DELAY_SECONDS}s...")
+            print_progress_summary(project_dir)
+            await asyncio.sleep(AUTO_CONTINUE_DELAY_SECONDS)
+
+        elif status == "idle_timeout":
+            print("\nSession aborted due to idle timeout")
+            print("This usually means the agent got stuck or is waiting for something.")
+            print("Will retry with a fresh session...")
             print_progress_summary(project_dir)
             await asyncio.sleep(AUTO_CONTINUE_DELAY_SECONDS)
 

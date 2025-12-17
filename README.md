@@ -162,6 +162,7 @@ The application will typically be available at `http://localhost:3000` or simila
 | `--model` | Claude model for all phases | `claude-sonnet-4-5-20250929` |
 | `--init-model` | Model for init/onboarding (overrides `--model`) | Same as `--model` |
 | `--code-model` | Model for coding phases (overrides `--model`) | Same as `--model` |
+| `--idle-timeout` | Abort session if no output for N seconds | `180` |
 
 ### Multi-Model Configuration
 
@@ -185,6 +186,26 @@ python autonomous_agent_demo.py --project-dir ./my_project \
 | Cost-optimized | `claude-3-5-haiku-20241022` | `claude-sonnet-4-5-20250929` |
 | Balanced | `claude-sonnet-4-5-20250929` | `claude-sonnet-4-5-20250929` |
 | Maximum quality | `claude-sonnet-4-5-20250929` | `claude-opus-4-20250514` |
+
+### Idle Timeout
+
+The idle timeout feature automatically detects and handles stuck agent sessions. If the agent produces no output for the specified number of seconds, the session is aborted and a fresh session is started.
+
+```bash
+# Use default 180-second idle timeout
+python autonomous_agent_demo.py --project-dir ./my_project
+
+# Increase timeout for complex operations (5 minutes)
+python autonomous_agent_demo.py --project-dir ./my_project --idle-timeout 300
+
+# Disable idle timeout entirely
+python autonomous_agent_demo.py --project-dir ./my_project --idle-timeout 0
+```
+
+**When to adjust idle timeout:**
+- **Increase** if you're seeing false timeouts during long-running operations
+- **Decrease** if you want faster detection of stuck sessions
+- **Disable (0)** if you want the agent to run without time limits
 
 ## Customization
 
