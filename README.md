@@ -212,23 +212,23 @@ The application will typically be available at `http://localhost:3000` or simila
 You can use different models for different phases to optimize cost and performance:
 
 ```bash
-# Use Haiku for setup (cheaper), Sonnet for coding (more capable)
+# Use Haiku 4.5 for setup (cheaper), Sonnet 4.5 for coding (more capable)
 python autonomous_agent_demo.py --project-dir ./my_project \
-  --init-model claude-3-5-haiku-20241022 \
+  --init-model claude-haiku-4-5-20251001 \
   --code-model claude-sonnet-4-5-20250929
 
-# Use Opus for complex coding tasks
+# Use Opus 4.5 for complex coding tasks
 python autonomous_agent_demo.py --project-dir ./my_project \
-  --code-model claude-opus-4-20250514
+  --code-model claude-opus-4-5-20251101
 ```
 
 **Recommended configurations:**
 
 | Use Case | Init Model | Code Model |
 |----------|-----------|------------|
-| Cost-optimized | `claude-3-5-haiku-20241022` | `claude-sonnet-4-5-20250929` |
+| Cost-optimized | `claude-haiku-4-5-20251001` | `claude-sonnet-4-5-20250929` |
 | Balanced | `claude-sonnet-4-5-20250929` | `claude-sonnet-4-5-20250929` |
-| Maximum quality | `claude-sonnet-4-5-20250929` | `claude-opus-4-20250514` |
+| Maximum quality | `claude-sonnet-4-5-20250929` | `claude-opus-4-5-20251101` |
 
 ### Idle Timeout
 

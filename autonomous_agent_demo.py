@@ -46,7 +46,7 @@ Examples:
   python autonomous_agent_demo.py --project-dir ./claude_clone --model claude-sonnet-4-5-20250929
 
   # Use different models for init/onboarding vs coding (cost optimization)
-  python autonomous_agent_demo.py --project-dir ./claude_clone --init-model claude-3-5-haiku-20241022 --code-model claude-sonnet-4-5-20250929
+  python autonomous_agent_demo.py --project-dir ./claude_clone --init-model claude-haiku-4-5-20251001 --code-model claude-sonnet-4-5-20250929
 
   # Limit iterations for testing
   python autonomous_agent_demo.py --project-dir ./claude_clone --max-iterations 5
