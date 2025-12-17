@@ -163,6 +163,7 @@ The application will typically be available at `http://localhost:3000` or simila
 | `--init-model` | Model for init/onboarding (overrides `--model`) | Same as `--model` |
 | `--code-model` | Model for coding phases (overrides `--model`) | Same as `--model` |
 | `--idle-timeout` | Abort session if no output for N seconds | `180` |
+| `--quit-on-abort` | Quit after N consecutive failures | `0` (never) |
 
 ### Multi-Model Configuration
 
@@ -206,6 +207,32 @@ python autonomous_agent_demo.py --project-dir ./my_project --idle-timeout 0
 - **Increase** if you're seeing false timeouts during long-running operations
 - **Decrease** if you want faster detection of stuck sessions
 - **Disable (0)** if you want the agent to run without time limits
+
+### Failure Threshold
+
+The failure threshold feature tracks consecutive failures (errors and idle timeouts) and can automatically quit after reaching a threshold. This prevents infinite retry loops when something is fundamentally broken.
+
+```bash
+# Default: never quit, keep retrying forever
+python autonomous_agent_demo.py --project-dir ./my_project
+
+# Quit after 3 consecutive failures
+python autonomous_agent_demo.py --project-dir ./my_project --quit-on-abort 3
+
+# Quit after 5 consecutive failures (more resilient)
+python autonomous_agent_demo.py --project-dir ./my_project --quit-on-abort 5
+```
+
+**How it works:**
+- Counter increments on errors or idle timeouts
+- Counter resets to 0 on successful session completion
+- When counter reaches threshold, the agent stops
+- Use `0` (default) to disable and keep retrying indefinitely
+
+**When to use:**
+- **Production runs:** Set to 3-5 to avoid wasting compute on broken sessions
+- **Development/debugging:** Set to 0 to allow manual investigation
+- **Unattended runs:** Set to a reasonable threshold to prevent runaway costs
 
 ## Customization
 

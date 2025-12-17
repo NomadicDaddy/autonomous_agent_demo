@@ -200,6 +200,7 @@ async def run_autonomous_agent(
     code_model: str,
     max_iterations: Optional[int] = None,
     idle_timeout: Optional[int] = None,
+    quit_on_abort: Optional[int] = None,
 ) -> None:
     """
     Run the autonomous agent loop.
@@ -210,6 +211,7 @@ async def run_autonomous_agent(
         code_model: Claude model for coding phases
         max_iterations: Maximum number of iterations (None for unlimited)
         idle_timeout: Seconds to wait for output before aborting session (None to disable)
+        quit_on_abort: Quit after N consecutive failures (None to keep retrying)
     """
     print("\n" + "=" * 70)
     print("  AUTONOMOUS CODING AGENT DEMO")
@@ -226,6 +228,8 @@ async def run_autonomous_agent(
         print("Max iterations: Unlimited (will run until completion)")
     if idle_timeout:
         print(f"Idle timeout: {idle_timeout}s")
+    if quit_on_abort:
+        print(f"Quit on abort: after {quit_on_abort} consecutive failures")
     print()
 
     # Create project directory
@@ -271,6 +275,7 @@ async def run_autonomous_agent(
 
     # Main loop
     iteration = 0
+    consecutive_failures = 0  # Track consecutive failures for quit_on_abort
 
     while True:
         iteration += 1
@@ -307,21 +312,49 @@ async def run_autonomous_agent(
                 client, prompt, project_dir, idle_timeout=idle_timeout
             )
 
-        # Handle status
+        # Handle status and track failures
         if status == "continue":
+            # Success - reset failure counter
+            consecutive_failures = 0
             print(f"\nAgent will auto-continue in {AUTO_CONTINUE_DELAY_SECONDS}s...")
             print_progress_summary(project_dir)
             await asyncio.sleep(AUTO_CONTINUE_DELAY_SECONDS)
 
         elif status == "idle_timeout":
+            # Failure - increment counter
+            consecutive_failures += 1
             print("\nSession aborted due to idle timeout")
             print("This usually means the agent got stuck or is waiting for something.")
+
+            # Check if we should quit
+            if quit_on_abort and consecutive_failures >= quit_on_abort:
+                print(f"\n{'=' * 70}")
+                print(f"  ABORTING: {consecutive_failures} consecutive failures reached threshold ({quit_on_abort})")
+                print(f"{'=' * 70}")
+                print("\nTo continue, run the script again or increase --quit-on-abort")
+                break
+
+            print(f"Consecutive failures: {consecutive_failures}" +
+                  (f"/{quit_on_abort}" if quit_on_abort else ""))
             print("Will retry with a fresh session...")
             print_progress_summary(project_dir)
             await asyncio.sleep(AUTO_CONTINUE_DELAY_SECONDS)
 
         elif status == "error":
+            # Failure - increment counter
+            consecutive_failures += 1
             print("\nSession encountered an error")
+
+            # Check if we should quit
+            if quit_on_abort and consecutive_failures >= quit_on_abort:
+                print(f"\n{'=' * 70}")
+                print(f"  ABORTING: {consecutive_failures} consecutive failures reached threshold ({quit_on_abort})")
+                print(f"{'=' * 70}")
+                print("\nTo continue, run the script again or increase --quit-on-abort")
+                break
+
+            print(f"Consecutive failures: {consecutive_failures}" +
+                  (f"/{quit_on_abort}" if quit_on_abort else ""))
             print("Will retry with a fresh session...")
             await asyncio.sleep(AUTO_CONTINUE_DELAY_SECONDS)
 

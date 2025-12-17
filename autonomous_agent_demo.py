@@ -57,6 +57,9 @@ Examples:
   # Set idle timeout (abort if no output for N seconds)
   python autonomous_agent_demo.py --project-dir ./claude_clone --idle-timeout 300
 
+  # Quit after 3 consecutive failures
+  python autonomous_agent_demo.py --project-dir ./claude_clone --quit-on-abort 3
+
 How it works:
   - Empty directory: Uses initializer agent to create new app from spec
   - Existing code without feature_list.json: Uses onboarding agent to analyze code
@@ -109,6 +112,13 @@ Environment Variables:
         help="Abort session if no output for N seconds (default: 180). Set to 0 to disable.",
     )
 
+    parser.add_argument(
+        "--quit-on-abort",
+        type=int,
+        default=0,
+        help="Quit after N consecutive failures (default: 0 = never quit, keep retrying).",
+    )
+
     return parser.parse_args()
 
 
@@ -149,6 +159,7 @@ def main() -> None:
                 code_model=code_model,
                 max_iterations=args.max_iterations,
                 idle_timeout=args.idle_timeout if args.idle_timeout > 0 else None,
+                quit_on_abort=args.quit_on_abort if args.quit_on_abort > 0 else None,
             )
         )
     except KeyboardInterrupt:
