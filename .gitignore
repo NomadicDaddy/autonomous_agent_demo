@@ -1,0 +1,7 @@
+# Agent-generated output directories
+generations/
+
+# Log files
+logs/
+
+__pycache__

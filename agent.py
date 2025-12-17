@@ -13,11 +13,51 @@ from claude_code_sdk import ClaudeSDKClient
 
 from client import create_client
 from progress import print_session_header, print_progress_summary
-from prompts import get_initializer_prompt, get_coding_prompt, copy_spec_to_project
+from prompts import get_initializer_prompt, get_coding_prompt, get_onboarding_prompt, copy_spec_to_project
 
 
 # Configuration
 AUTO_CONTINUE_DELAY_SECONDS = 3
+
+
+def has_existing_codebase(project_dir: Path) -> bool:
+    """
+    Check if the project directory has existing code (not just auto-claudecode artifacts).
+
+    Returns True if there are files that suggest this is an existing codebase,
+    False if it's empty or only has our tracking files.
+    """
+    if not project_dir.exists():
+        return False
+
+    # Files to ignore when checking for existing code
+    ignored_patterns = {
+        'feature_list.json',
+        'app_spec.txt',
+        'init.sh',
+        'claude-progress.txt',
+        '.git',
+        '.DS_Store',
+        '__pycache__',
+        'node_modules',
+        '.vscode',
+        '.idea',
+    }
+
+    # Check for any non-ignored files or directories
+    for item in project_dir.iterdir():
+        # Skip hidden files except .git
+        if item.name.startswith('.') and item.name != '.git':
+            continue
+
+        # Skip our tracking files
+        if item.name in ignored_patterns:
+            continue
+
+        # Found a file/directory that suggests existing code
+        return True
+
+    return False
 
 
 async def run_agent_session(
@@ -121,11 +161,28 @@ async def run_autonomous_agent(
     # Create project directory
     project_dir.mkdir(parents=True, exist_ok=True)
 
-    # Check if this is a fresh start or continuation
+    # Check if this is a fresh start, onboarding, or continuation
     tests_file = project_dir / "feature_list.json"
+    has_existing_code = has_existing_codebase(project_dir)
     is_first_run = not tests_file.exists()
 
-    if is_first_run:
+    # Determine session type
+    session_type = None  # 'initializer', 'onboarding', or 'coding'
+
+    if is_first_run and has_existing_code:
+        # Existing codebase without feature_list.json - need onboarding
+        session_type = 'onboarding'
+        print("Existing codebase detected - will use onboarding agent")
+        print()
+        print("=" * 70)
+        print("  NOTE: Onboarding session takes 10-20+ minutes!")
+        print("  The agent is analyzing your codebase and generating test cases.")
+        print("  This may appear to hang - it's working. Watch for [Tool: ...] output.")
+        print("=" * 70)
+        print()
+    elif is_first_run and not has_existing_code:
+        # Empty directory - fresh start
+        session_type = 'initializer'
         print("Fresh start - will use initializer agent")
         print()
         print("=" * 70)
@@ -137,6 +194,8 @@ async def run_autonomous_agent(
         # Copy the app spec into the project directory for the agent to read
         copy_spec_to_project(project_dir)
     else:
+        # Continuing existing project
+        session_type = 'coding'
         print("Continuing existing project")
         print_progress_summary(project_dir)
 
@@ -153,16 +212,20 @@ async def run_autonomous_agent(
             break
 
         # Print session header
-        print_session_header(iteration, is_first_run)
+        is_first_session = (iteration == 1)
+        print_session_header(iteration, is_first_session)
 
         # Create client (fresh context)
         client = create_client(project_dir, model)
 
         # Choose prompt based on session type
-        if is_first_run:
+        if session_type == 'initializer':
             prompt = get_initializer_prompt()
-            is_first_run = False  # Only use initializer once
-        else:
+            session_type = 'coding'  # Switch to coding after initializer
+        elif session_type == 'onboarding':
+            prompt = get_onboarding_prompt()
+            session_type = 'coding'  # Switch to coding after onboarding
+        else:  # session_type == 'coding'
             prompt = get_coding_prompt()
 
         # Run session with async context manager

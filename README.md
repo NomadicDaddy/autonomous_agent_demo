@@ -1,6 +1,8 @@
 # Autonomous Coding Agent Demo
 
-A minimal harness demonstrating long-running autonomous coding with the Claude Agent SDK. This demo implements a two-agent pattern (initializer + coding agent) that can build complete applications over multiple sessions.
+A minimal harness demonstrating long-running autonomous coding with the Claude Agent SDK. This demo implements a three-agent pattern (initializer/onboarding + coding agent) that can build complete applications over multiple sessions.
+
+**New in v2.0:** Support for existing codebases! The agent can now analyze and continue development on existing projects, not just build from scratch.
 
 ## Prerequisites
 
@@ -27,11 +29,17 @@ export ANTHROPIC_API_KEY='your-api-key-here'
 
 ## Quick Start
 
+**New Project (build from scratch):**
 ```bash
 python autonomous_agent_demo.py --project-dir ./my_project
 ```
 
-For testing with limited iterations:
+**Existing Codebase (analyze and continue):**
+```bash
+python autonomous_agent_demo.py --project-dir ./path/to/existing/app
+```
+
+**Testing with limited iterations:**
 ```bash
 python autonomous_agent_demo.py --project-dir ./my_project --max-iterations 3
 ```
@@ -50,11 +58,30 @@ python autonomous_agent_demo.py --project-dir ./my_project --max-iterations 3
 
 ## How It Works
 
-### Two-Agent Pattern
+### Three-Agent Pattern
 
-1. **Initializer Agent (Session 1):** Reads `app_spec.txt`, creates `feature_list.json` with 200 test cases, sets up project structure, and initializes git.
+The system automatically detects which agent to use based on the project directory state:
 
-2. **Coding Agent (Sessions 2+):** Picks up where the previous session left off, implements features one by one, and marks them as passing in `feature_list.json`.
+1. **Initializer Agent (Session 1 - New Projects):**
+   - Triggered when: Directory is empty or doesn't exist
+   - Reads `app_spec.txt`, creates `feature_list.json` with 200 test cases
+   - Sets up project structure and initializes git
+   - Begins implementation if time permits
+
+2. **Onboarding Agent (Session 1 - Existing Codebases):**
+   - Triggered when: Directory has existing code but no `feature_list.json`
+   - Analyzes the existing codebase to understand what's implemented
+   - Creates or infers `app_spec.txt` from the code
+   - Creates `feature_list.json` with existing features marked as passing
+   - Identifies missing features and technical debt
+   - Prepares for continued development
+
+3. **Coding Agent (Sessions 2+):**
+   - Triggered when: `feature_list.json` exists
+   - Picks up where previous session left off
+   - Implements features one by one
+   - Marks them as passing in `feature_list.json`
+   - Works on both new and existing codebases
 
 ### Session Management
 
@@ -89,7 +116,8 @@ autonomous-coding/
 ├── prompts.py                # Prompt loading utilities
 ├── prompts/
 │   ├── app_spec.txt          # Application specification
-│   ├── initializer_prompt.md # First session prompt
+│   ├── initializer_prompt.md # First session prompt (new projects)
+│   ├── onboarding_prompt.md  # First session prompt (existing codebases)
 │   └── coding_prompt.md      # Continuation session prompt
 └── requirements.txt          # Python dependencies
 ```

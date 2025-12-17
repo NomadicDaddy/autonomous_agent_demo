@@ -28,6 +28,11 @@ def get_coding_prompt() -> str:
     return load_prompt("coding_prompt")
 
 
+def get_onboarding_prompt() -> str:
+    """Load the onboarding agent prompt for existing codebases."""
+    return load_prompt("onboarding_prompt")
+
+
 def copy_spec_to_project(project_dir: Path) -> None:
     """Copy the app spec file into the project directory for the agent to read."""
     spec_source = PROMPTS_DIR / "app_spec.txt"

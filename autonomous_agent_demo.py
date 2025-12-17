@@ -4,11 +4,16 @@ Autonomous Coding Agent Demo
 ============================
 
 A minimal harness demonstrating long-running autonomous coding with Claude.
-This script implements the two-agent pattern (initializer + coding agent) and
-incorporates all the strategies from the long-running agents guide.
+This script implements the three-agent pattern (initializer/onboarding + coding agent)
+and incorporates all the strategies from the long-running agents guide.
+
+Supports both new projects and existing codebases:
+- New projects: Uses initializer agent to build from spec
+- Existing codebases: Uses onboarding agent to analyze and continue development
 
 Example Usage:
     python autonomous_agent_demo.py --project-dir ./claude_clone_demo
+    python autonomous_agent_demo.py --project-dir ./existing_app
     python autonomous_agent_demo.py --project-dir ./claude_clone_demo --max-iterations 5
 """
 
@@ -31,8 +36,11 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Start fresh project
+  # Start fresh project (creates new app from spec)
   python autonomous_agent_demo.py --project-dir ./claude_clone
+
+  # Onboard existing codebase (analyzes existing code)
+  python autonomous_agent_demo.py --project-dir ./existing_app
 
   # Use a specific model
   python autonomous_agent_demo.py --project-dir ./claude_clone --model claude-sonnet-4-5-20250929
@@ -42,6 +50,11 @@ Examples:
 
   # Continue existing project
   python autonomous_agent_demo.py --project-dir ./claude_clone
+
+How it works:
+  - Empty directory: Uses initializer agent to create new app from spec
+  - Existing code without feature_list.json: Uses onboarding agent to analyze code
+  - Has feature_list.json: Continues development with coding agent
 
 Environment Variables:
   ANTHROPIC_API_KEY    Your Anthropic API key (required)
