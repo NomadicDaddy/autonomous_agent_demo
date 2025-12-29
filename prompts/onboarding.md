@@ -63,9 +63,9 @@ Thoroughly analyze what already exists:
 
 ### STEP 3: CREATE OR INFER APP SPEC
 
-**If `app_spec.txt` exists:** Read it to understand the intended functionality.
+**If `/.auto/spec.txt` exists:** Read it to understand the intended functionality.
 
-**If `app_spec.txt` does NOT exist:** Create it by inferring from the existing codebase:
+**If `/.auto/spec.txt` does NOT exist:** Create it by inferring from the existing codebase:
 
 1. Analyze the code to understand what the application does
 2. Document the apparent purpose and goals
@@ -73,7 +73,7 @@ Thoroughly analyze what already exists:
 4. Describe the existing features
 5. Note any obvious missing functionality
 
-Write this to `app_spec.txt` in the project root.
+Write this to `/.auto/spec.txt` in the project directory.
 
 **Format for inferred spec:**
 ```
@@ -104,7 +104,7 @@ It should be reviewed and updated to reflect the actual requirements.
 ### STEP 4: CREATE FEATURE_LIST.JSON
 
 Based on your analysis of the existing codebase AND the spec (whether provided or inferred),
-create `feature_list.json` with detailed test cases.
+create `/.auto/feature_list.json` with detailed test cases.
 
 **CRITICAL: This must accurately reflect reality:**
 - Features that ALREADY EXIST and WORK should have `"passes": true`
@@ -180,7 +180,7 @@ create `feature_list.json` with detailed test cases.
 - **steps**: Array of testing steps
 - **passes**: Whether the feature passes testing (boolean)
 
-**Requirements for feature_list.json:**
+**Requirements for /.auto/feature_list.json:**
 - Minimum 200 features total with testing steps for each
 - Use appropriate `area` and `category` for each feature
 - Mix of narrow tests (2-5 steps) and comprehensive tests (10+ steps)
@@ -206,11 +206,11 @@ This ensures no functionality is missed.
 
 ### STEP 5: CREATE INIT.SH
 
-Create a script called `init.sh` that future agents can use to quickly
+Create a script called `/.auto/init.sh` that future agents can use to quickly
 set up and run the development environment.
 
 **If the project already has setup scripts** (like npm install, make setup, etc.):
-- Document those in init.sh
+- Document those in /.auto/init.sh
 - Call the existing setup scripts
 - Add any missing setup steps
 
@@ -242,7 +242,7 @@ echo "API available at: http://localhost:3000/api"
 
 Make the script executable:
 ```bash
-chmod +x init.sh
+chmod +x /.auto/init.sh
 ```
 
 ### STEP 6: INITIALIZE OR UPDATE GIT
@@ -256,18 +256,18 @@ git commit -m "Initial commit: existing codebase + onboarding artifacts"
 
 **If git repository already exists:**
 ```bash
-git add feature_list.json app_spec.txt init.sh claude-progress.txt
+git add /.auto/feature_list.json /.auto/spec.txt /.auto/init.sh /.auto/claude-progress.txt
 git commit -m "Onboarding: added feature tracking and setup documentation
 
-- Created feature_list.json with 200+ test cases (existing features marked as passing)
-- Created/updated app_spec.txt
-- Created init.sh for environment setup
+- Created /.auto/feature_list.json with 200+ test cases (existing features marked as passing)
+- Created/updated /.auto/spec.txt
+- Created /.auto/init.sh for environment setup
 - Ready for autonomous development sessions"
 ```
 
 ### STEP 7: CREATE PROGRESS NOTES
 
-Create `claude-progress.txt` with your onboarding summary:
+Create `/.auto/claude-progress.txt` with your onboarding summary:
 
 ```
 === ONBOARDING SESSION ===
@@ -289,9 +289,9 @@ TECHNICAL DEBT:
 [Bulleted list of improvements needed]
 
 FILES CREATED:
-- feature_list.json (200+ test cases, [X] passing, [Y] to implement)
-- app_spec.txt (created from code analysis / already existed)
-- init.sh (environment setup script)
+- /.auto/feature_list.json (200+ test cases, [X] passing, [Y] to implement)
+- /.auto/spec.txt (created from code analysis / already existed)
+- /.auto/init.sh (environment setup script)
 
 NEXT STEPS FOR CODING AGENTS:
 1. [Most important missing feature to implement]
@@ -305,18 +305,18 @@ STATUS: [X]/200+ tests passing ([percentage]%)
 
 **MANDATORY BEFORE COMPLETION:**
 
-1. ✅ Verify `feature_list.json` exists and is valid JSON
-2. ✅ Verify `app_spec.txt` exists and describes the application
-3. ✅ Verify `init.sh` exists and is executable
-4. ✅ Verify `claude-progress.txt` exists with onboarding summary
+1. ✅ Verify `/.auto/feature_list.json` exists and is valid JSON
+2. ✅ Verify `/.auto/spec.txt` exists and describes the application
+3. ✅ Verify `/.auto/init.sh` exists and is executable
+4. ✅ Verify `/.auto/claude-progress.txt` exists with onboarding summary
 5. ✅ Verify all files are committed to git
 6. ✅ Verify no application code was modified (only tracking files added)
 
 ```bash
 # Final checks
-ls -la feature_list.json app_spec.txt init.sh claude-progress.txt
+ls -la /.auto/feature_list.json /.auto/spec.txt /.auto/init.sh /.auto/claude-progress.txt
 git status
-cat feature_list.json | python -m json.tool > /dev/null && echo "✓ feature_list.json is valid JSON"
+cat /.auto/feature_list.json | python -m json.tool > /dev/null && echo "✓ /.auto/feature_list.json is valid JSON"
 ```
 
 **DO NOT:**

@@ -7,6 +7,7 @@ Functions for tracking and displaying progress of the autonomous coding agent.
 
 import json
 from collections import Counter
+from metadata_dir import find_or_create_metadata_dir
 from pathlib import Path
 from typing import Optional
 
@@ -16,12 +17,13 @@ def load_feature_list(project_dir: Path) -> Optional[list]:
     Load feature_list.json from project directory.
 
     Args:
-        project_dir: Directory containing feature_list.json
+        project_dir: Directory containing metadata directory with feature_list.json
 
     Returns:
         List of features or None if file doesn't exist or is invalid
     """
-    tests_file = project_dir / "feature_list.json"
+    metadata_dir = find_or_create_metadata_dir(project_dir)
+    tests_file = metadata_dir / "feature_list.json"
 
     if not tests_file.exists():
         return None
@@ -38,7 +40,7 @@ def count_passing_tests(project_dir: Path) -> tuple[int, int]:
     Count passing and total tests in feature_list.json.
 
     Args:
-        project_dir: Directory containing feature_list.json
+        project_dir: Directory containing metadata directory with feature_list.json
 
     Returns:
         (passing_count, total_count)
@@ -59,7 +61,7 @@ def get_feature_breakdown(project_dir: Path) -> dict:
     Get detailed breakdown of features by area, priority, and status.
 
     Args:
-        project_dir: Directory containing feature_list.json
+        project_dir: Directory containing metadata directory with feature_list.json
 
     Returns:
         Dictionary with breakdown statistics
@@ -116,13 +118,14 @@ def print_progress_summary(project_dir: Path, verbose: bool = False) -> None:
     Print a summary of current progress.
 
     Args:
-        project_dir: Directory containing feature_list.json
+        project_dir: Directory containing metadata directory with feature_list.json
         verbose: If True, show detailed breakdown by area/priority/status
     """
     passing, total = count_passing_tests(project_dir)
 
     if total == 0:
-        print("\nProgress: feature_list.json not yet created")
+        metadata_dir = find_or_create_metadata_dir(project_dir)
+        print(f"\nProgress: {metadata_dir.name}/feature_list.json not yet created")
         return
 
     percentage = (passing / total) * 100

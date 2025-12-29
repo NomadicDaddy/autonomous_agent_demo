@@ -11,12 +11,12 @@ def test_default_model():
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test']):
         # Import after patching argv
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
-        assert args.model == autonomous_agent_demo.DEFAULT_MODEL
+        assert args.model == aidd_c.DEFAULT_MODEL
         assert args.init_model is None
         assert args.code_model is None
 
@@ -24,18 +24,18 @@ def test_default_model():
         init_model = args.init_model if args.init_model else args.model
         code_model = args.code_model if args.code_model else args.model
 
-        assert init_model == autonomous_agent_demo.DEFAULT_MODEL
-        assert code_model == autonomous_agent_demo.DEFAULT_MODEL
+        assert init_model == aidd_c.DEFAULT_MODEL
+        assert code_model == aidd_c.DEFAULT_MODEL
 
 
 def test_single_model_override():
     """Test that --model overrides both init and code."""
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test', '--model', 'custom-model']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
         assert args.model == 'custom-model'
         assert args.init_model is None
@@ -53,12 +53,12 @@ def test_init_model_override():
     """Test that --init-model overrides only init phase."""
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test', '--init-model', 'init-model']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
-        assert args.model == autonomous_agent_demo.DEFAULT_MODEL
+        assert args.model == aidd_c.DEFAULT_MODEL
         assert args.init_model == 'init-model'
         assert args.code_model is None
 
@@ -67,19 +67,19 @@ def test_init_model_override():
         code_model = args.code_model if args.code_model else args.model
 
         assert init_model == 'init-model'
-        assert code_model == autonomous_agent_demo.DEFAULT_MODEL
+        assert code_model == aidd_c.DEFAULT_MODEL
 
 
 def test_code_model_override():
     """Test that --code-model overrides only coding phase."""
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test', '--code-model', 'code-model']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
-        assert args.model == autonomous_agent_demo.DEFAULT_MODEL
+        assert args.model == aidd_c.DEFAULT_MODEL
         assert args.init_model is None
         assert args.code_model == 'code-model'
 
@@ -87,7 +87,7 @@ def test_code_model_override():
         init_model = args.init_model if args.init_model else args.model
         code_model = args.code_model if args.code_model else args.model
 
-        assert init_model == autonomous_agent_demo.DEFAULT_MODEL
+        assert init_model == aidd_c.DEFAULT_MODEL
         assert code_model == 'code-model'
 
 
@@ -96,10 +96,10 @@ def test_both_overrides():
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test',
                                      '--init-model', 'haiku', '--code-model', 'opus']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
         assert args.init_model == 'haiku'
         assert args.code_model == 'opus'
@@ -119,10 +119,10 @@ def test_overrides_take_precedence():
                                      '--init-model', 'haiku',
                                      '--code-model', 'opus']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
         assert args.model == 'base-model'
         assert args.init_model == 'haiku'

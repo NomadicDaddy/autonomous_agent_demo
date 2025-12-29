@@ -10,10 +10,10 @@ def test_default_quit_on_abort():
     """Test that default quit_on_abort is 0 (disabled)."""
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
         assert args.quit_on_abort == 0
 
@@ -22,10 +22,10 @@ def test_quit_on_abort_set():
     """Test that --quit-on-abort can be set."""
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test', '--quit-on-abort', '3']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
         assert args.quit_on_abort == 3
 
@@ -34,10 +34,10 @@ def test_quit_on_abort_zero_means_disabled():
     """Test that --quit-on-abort 0 means disabled (None passed to agent)."""
     with patch.object(sys, 'argv', ['prog', '--project-dir', './test', '--quit-on-abort', '0']):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
         # Zero means disabled
         quit_on_abort = args.quit_on_abort if args.quit_on_abort > 0 else None
@@ -54,10 +54,10 @@ def test_quit_on_abort_with_other_options():
         '--max-iterations', '10'
     ]):
         import importlib
-        import autonomous_agent_demo
-        importlib.reload(autonomous_agent_demo)
+        import aidd_c
+        importlib.reload(aidd_c)
 
-        args = autonomous_agent_demo.parse_args()
+        args = aidd_c.parse_args()
 
         assert args.idle_timeout == 300
         assert args.quit_on_abort == 5

@@ -1,4 +1,4 @@
-# Autonomous Coding Agent Demo
+# AIDD-C - AI Development Driver: Claude
 
 A minimal harness demonstrating long-running autonomous coding with the Claude Agent SDK. This demo implements a three-agent pattern (initializer/onboarding + coding agent) that can build complete applications over multiple sessions.
 
@@ -31,30 +31,30 @@ export ANTHROPIC_API_KEY='your-api-key-here'
 
 **New Project (build from scratch):**
 ```bash
-python autonomous_agent_demo.py --project-dir ./my_project
+python aidd-c.py --project-dir ./my_project --spec ./specs/app_spec.txt
 ```
 
 **Existing Codebase (analyze and continue):**
 ```bash
-python autonomous_agent_demo.py --project-dir ./path/to/existing/app
+python aidd-c.py --project-dir ./path/to/existing/app
 ```
 
 **Testing with limited iterations:**
 ```bash
-python autonomous_agent_demo.py --project-dir ./my_project --max-iterations 3
+python aidd-c.py --project-dir ./my_project --spec ./specs/app_spec.txt --max-iterations 3
 ```
 
 ## Important Timing Expectations
 
 > **Warning: This demo takes a long time to run!**
 
-- **First session (initialization):** The agent generates a `feature_list.json` with 200 test cases. This takes several minutes and may appear to hang - this is normal. The agent is writing out all the features.
+- **First session (initialization):** The agent generates a metadata directory (`.auto`, `.autok`, or `.automaker`) with a `feature_list.json` containing 200 test cases. This takes several minutes and may appear to hang - this is normal. The agent is writing out all the features.
 
 - **Subsequent sessions:** Each coding iteration can take **5-15 minutes** depending on complexity.
 
 - **Full app:** Building all 200 features typically requires **many hours** of total runtime across multiple sessions.
 
-**Tip:** The 200 features parameter in the prompts is designed for comprehensive coverage. If you want faster demos, you can modify `prompts/initializer_prompt.md` to reduce the feature count (e.g., 20-50 features for a quicker demo).
+**Tip:** The 200 features parameter in the prompts is designed for comprehensive coverage. If you want faster demos, you can modify `prompts/initializer.md` to reduce the feature count (e.g., 20-50 features for a quicker demo).
 
 ## How It Works
 
@@ -64,20 +64,20 @@ The system automatically detects which agent to use based on the project directo
 
 1. **Initializer Agent (Session 1 - New Projects):**
    - Triggered when: Directory is empty or doesn't exist
-   - Reads `app_spec.txt`, creates `feature_list.json` with 200 test cases
+   - Reads `spec.txt` from metadata directory, creates `feature_list.json` with 200 test cases
    - Sets up project structure and initializes git
    - Begins implementation if time permits
 
 2. **Onboarding Agent (Session 1 - Existing Codebases):**
-   - Triggered when: Directory has existing code but no `feature_list.json`
+   - Triggered when: Directory has existing code but no metadata directory with `feature_list.json`
    - Analyzes the existing codebase to understand what's implemented
-   - Creates or infers `app_spec.txt` from the code
+   - Creates or infers `spec.txt` from the code in the metadata directory
    - Creates `feature_list.json` with existing features marked as passing
    - Identifies missing features and technical debt
    - Prepares for continued development
 
 3. **Coding Agent (Sessions 2+):**
-   - Triggered when: `feature_list.json` exists
+   - Triggered when: `feature_list.json` exists in metadata directory
    - Picks up where previous session left off
    - Implements features one by one
    - Marks them as passing in `feature_list.json`
@@ -86,7 +86,7 @@ The system automatically detects which agent to use based on the project directo
 ### Session Management
 
 - Each session runs with a fresh context window
-- Progress is persisted via `feature_list.json` and git commits
+- Progress is persisted via metadata directory (`feature_list.json`) and git commits
 - The agent auto-continues between sessions (3 second delay)
 - Press `Ctrl+C` to pause; run the same command to resume
 
@@ -108,17 +108,18 @@ Commands not in the allowlist are blocked by the security hook.
 
 ```
 autonomous-coding/
-├── autonomous_agent_demo.py  # Main entry point
+├── aidd-c.py  # Main entry point
 ├── agent.py                  # Agent session logic
 ├── client.py                 # Claude SDK client configuration
 ├── security.py               # Bash command allowlist and validation
 ├── progress.py               # Progress tracking utilities
 ├── prompts.py                # Prompt loading utilities
 ├── prompts/
-│   ├── app_spec.txt          # Application specification
-│   ├── initializer_prompt.md # First session prompt (new projects)
-│   ├── onboarding_prompt.md  # First session prompt (existing codebases)
-│   └── coding_prompt.md      # Continuation session prompt
+│   ├── initializer.md # First session prompt (new projects)
+│   ├── onboarding.md  # First session prompt (existing codebases)
+│   └── coding.md      # Continuation session prompt
+├── specs/
+│   └── app_spec.txt          # Application specification
 └── requirements.txt          # Python dependencies
 ```
 
@@ -128,17 +129,18 @@ After running, your project directory will contain:
 
 ```
 my_project/
-├── feature_list.json         # Test cases (source of truth)
-├── app_spec.txt              # Copied specification
-├── init.sh                   # Environment setup script
-├── claude-progress.txt       # Session progress notes
+├── .auto/                      # or .autok/ or .automaker/ (whichever is found/created)
+│   ├── feature_list.json         # Test cases (source of truth)
+│   ├── spec.txt                  # Copied specification
+│   ├── init.sh                   # Environment setup script
+│   └── claude-progress.txt       # Session progress notes
 ├── .claude_settings.json     # Security settings
 └── [application files]       # Generated application code
 ```
 
 ## Feature List Schema
 
-The `feature_list.json` file uses an enhanced schema with rich metadata for better tracking:
+The metadata directory's `feature_list.json` file uses an enhanced schema with rich metadata for better tracking:
 
 ```json
 {
@@ -186,20 +188,21 @@ After the agent completes (or pauses), you can run the generated application:
 cd generations/my_project
 
 # Run the setup script created by the agent
-./init.sh
+./[metadata-dir]/init.sh
 
 # Or manually (typical for Node.js apps):
 npm install
 npm run dev
 ```
 
-The application will typically be available at `http://localhost:3000` or similar (check the agent's output or `init.sh` for the exact URL).
+The application will typically be available at `http://localhost:3000` or similar (check the agent's output or `[metadata-dir]/init.sh` for the exact URL).
 
 ## Command Line Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--project-dir` | Directory for the project | `./autonomous_demo_project` |
+| `--project-dir` | Directory for the project (required) | None |
+| `--spec` | Specification file (required for new projects) | None |
 | `--max-iterations` | Max agent iterations | Unlimited |
 | `--model` | Claude model for all phases | `claude-sonnet-4-5-20250929` |
 | `--init-model` | Model for init/onboarding (overrides `--model`) | Same as `--model` |
@@ -213,12 +216,12 @@ You can use different models for different phases to optimize cost and performan
 
 ```bash
 # Use Haiku 4.5 for setup (cheaper), Sonnet 4.5 for coding (more capable)
-python autonomous_agent_demo.py --project-dir ./my_project \
+python aidd-c.py --project-dir ./my_project --spec ./specs/app_spec.txt \
   --init-model claude-haiku-4-5-20251001 \
   --code-model claude-sonnet-4-5-20250929
 
 # Use Opus 4.5 for complex coding tasks
-python autonomous_agent_demo.py --project-dir ./my_project \
+python aidd-c.py --project-dir ./my_project --spec ./specs/app_spec.txt \
   --code-model claude-opus-4-5-20251101
 ```
 
@@ -236,13 +239,13 @@ The idle timeout feature automatically detects and handles stuck agent sessions.
 
 ```bash
 # Use default 180-second idle timeout
-python autonomous_agent_demo.py --project-dir ./my_project
+python aidd-c.py --project-dir ./my_project
 
 # Increase timeout for complex operations (5 minutes)
-python autonomous_agent_demo.py --project-dir ./my_project --idle-timeout 300
+python aidd-c.py --project-dir ./my_project --idle-timeout 300
 
 # Disable idle timeout entirely
-python autonomous_agent_demo.py --project-dir ./my_project --idle-timeout 0
+python aidd-c.py --project-dir ./my_project --idle-timeout 0
 ```
 
 **When to adjust idle timeout:**
@@ -256,13 +259,13 @@ The failure threshold feature tracks consecutive failures (errors and idle timeo
 
 ```bash
 # Default: never quit, keep retrying forever
-python autonomous_agent_demo.py --project-dir ./my_project
+python aidd-c.py --project-dir ./my_project
 
 # Quit after 3 consecutive failures
-python autonomous_agent_demo.py --project-dir ./my_project --quit-on-abort 3
+python aidd-c.py --project-dir ./my_project --quit-on-abort 3
 
 # Quit after 5 consecutive failures (more resilient)
-python autonomous_agent_demo.py --project-dir ./my_project --quit-on-abort 5
+python aidd-c.py --project-dir ./my_project --quit-on-abort 5
 ```
 
 **How it works:**
@@ -280,11 +283,11 @@ python autonomous_agent_demo.py --project-dir ./my_project --quit-on-abort 5
 
 ### Changing the Application
 
-Edit `prompts/app_spec.txt` to specify a different application to build.
+Edit `specs/app_spec.txt` to specify a different application to build.
 
 ### Adjusting Feature Count
 
-Edit `prompts/initializer_prompt.md` and change the "200 features" requirement to a smaller number for faster demos.
+Edit `prompts/initializer.md` and change the "200 features" requirement to a smaller number for faster demos.
 
 ### Modifying Allowed Commands
 

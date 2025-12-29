@@ -12,6 +12,7 @@ from typing import Optional
 from claude_code_sdk import ClaudeSDKClient
 
 from client import create_client
+from metadata_dir import find_or_create_metadata_dir
 from progress import print_session_header, print_progress_summary
 from prompts import get_initializer_prompt, get_coding_prompt, get_onboarding_prompt, copy_spec_to_project
 
@@ -79,10 +80,9 @@ def has_existing_codebase(project_dir: Path) -> bool:
 
     # Files to ignore when checking for existing code
     ignored_patterns = {
-        'feature_list.json',
-        'app_spec.txt',
-        'init.sh',
-        'claude-progress.txt',
+        '.auto',
+        '.autok',
+        '.automaker',
         '.git',
         '.DS_Store',
         '__pycache__',
@@ -201,6 +201,7 @@ async def run_autonomous_agent(
     max_iterations: Optional[int] = None,
     idle_timeout: Optional[int] = None,
     quit_on_abort: Optional[int] = None,
+    spec_file: Optional[Path] = None,
 ) -> None:
     """
     Run the autonomous agent loop.
@@ -210,8 +211,9 @@ async def run_autonomous_agent(
         init_model: Claude model for initializer/onboarding phases
         code_model: Claude model for coding phases
         max_iterations: Maximum number of iterations (None for unlimited)
-        idle_timeout: Seconds to wait for output before aborting session (None to disable)
-        quit_on_abort: Quit after N consecutive failures (None to keep retrying)
+        idle_timeout: Idle timeout in seconds (None for no timeout)
+        quit_on_abort: Quit after N consecutive failures (None for never quit)
+        spec_file: Optional specification file path
     """
     print("\n" + "=" * 70)
     print("  AUTONOMOUS CODING AGENT DEMO")
@@ -235,8 +237,10 @@ async def run_autonomous_agent(
     # Create project directory
     project_dir.mkdir(parents=True, exist_ok=True)
 
-    # Check if this is a fresh start, onboarding, or continuation
-    tests_file = project_dir / "feature_list.json"
+    # Find or create metadata directory
+    metadata_dir = find_or_create_metadata_dir(project_dir)
+    tests_file = metadata_dir / "feature_list.json"
+    spec_file_path = metadata_dir / "spec.txt"
     has_existing_code = has_existing_codebase(project_dir)
     is_first_run = not tests_file.exists()
 
@@ -266,7 +270,7 @@ async def run_autonomous_agent(
         print("=" * 70)
         print()
         # Copy the app spec into the project directory for the agent to read
-        copy_spec_to_project(project_dir)
+        copy_spec_to_project(project_dir, spec_file)
     else:
         # Continuing existing project
         session_type = 'coding'

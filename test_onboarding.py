@@ -26,11 +26,13 @@ def test_only_tracking_files():
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir)
 
-        # Create tracking files
-        (project_dir / "feature_list.json").write_text("{}")
-        (project_dir / "app_spec.txt").write_text("spec")
-        (project_dir / "init.sh").write_text("#!/bin/bash")
-        (project_dir / "claude-progress.txt").write_text("progress")
+        # Create .auto directory with tracking files
+        auto_dir = project_dir / ".auto"
+        auto_dir.mkdir()
+        (auto_dir / "feature_list.json").write_text("{}")
+        (auto_dir / "spec.txt").write_text("spec")
+        (auto_dir / "init.sh").write_text("#!/bin/bash")
+        (auto_dir / "claude-progress.txt").write_text("progress")
 
         assert not has_existing_codebase(project_dir)
 
@@ -112,9 +114,11 @@ def test_mixed_tracking_and_code():
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir)
 
-        # Create tracking files
-        (project_dir / "feature_list.json").write_text("{}")
-        (project_dir / "app_spec.txt").write_text("spec")
+        # Create .auto directory with tracking files
+        auto_dir = project_dir / ".auto"
+        auto_dir.mkdir()
+        (auto_dir / "feature_list.json").write_text("{}")
+        (auto_dir / "spec.txt").write_text("spec")
 
         # Create actual code
         (project_dir / "app.py").write_text("print('hello')")

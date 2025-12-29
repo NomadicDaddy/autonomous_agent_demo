@@ -37,28 +37,28 @@ def parse_args() -> argparse.Namespace:
         epilog="""
 Examples:
   # Start fresh project (creates new app from spec)
-  python autonomous_agent_demo.py --project-dir ./claude_clone
+  python autonomous_agent_demo.py --project-dir ./my_project --spec ./my_spec.txt
 
   # Onboard existing codebase (analyzes existing code)
   python autonomous_agent_demo.py --project-dir ./existing_app
 
   # Use a specific model for all phases
-  python autonomous_agent_demo.py --project-dir ./claude_clone --model claude-sonnet-4-5-20250929
+  python autonomous_agent_demo.py --project-dir ./my_project --spec ./my_spec.txt --model claude-sonnet-4-5-20250929
 
   # Use different models for init/onboarding vs coding (cost optimization)
-  python autonomous_agent_demo.py --project-dir ./claude_clone --init-model claude-haiku-4-5-20251001 --code-model claude-sonnet-4-5-20250929
+  python autonomous_agent_demo.py --project-dir ./my_project --spec ./my_spec.txt --init-model claude-haiku-4-5-20251001 --code-model claude-sonnet-4-5-20250929
 
   # Limit iterations for testing
-  python autonomous_agent_demo.py --project-dir ./claude_clone --max-iterations 5
+  python autonomous_agent_demo.py --project-dir ./my_project --spec ./my_spec.txt --max-iterations 5
 
   # Continue existing project
-  python autonomous_agent_demo.py --project-dir ./claude_clone
+  python autonomous_agent_demo.py --project-dir ./my_project
 
   # Set idle timeout (abort if no output for N seconds)
-  python autonomous_agent_demo.py --project-dir ./claude_clone --idle-timeout 300
+  python autonomous_agent_demo.py --project-dir ./my_project --idle-timeout 300
 
   # Quit after 3 consecutive failures
-  python autonomous_agent_demo.py --project-dir ./claude_clone --quit-on-abort 3
+  python autonomous_agent_demo.py --project-dir ./my_project --quit-on-abort 3
 
 How it works:
   - Empty directory: Uses initializer agent to create new app from spec
@@ -73,8 +73,15 @@ Environment Variables:
     parser.add_argument(
         "--project-dir",
         type=Path,
-        default=Path("./autonomous_demo_project"),
-        help="Directory for the project (default: generations/autonomous_demo_project). Relative paths automatically placed in generations/ directory.",
+        required=True,
+        help="Directory for the project (required)",
+    )
+
+    parser.add_argument(
+        "--spec",
+        type=Path,
+        default=None,
+        help="Specification file (optional for existing codebases, required for new projects)",
     )
 
     parser.add_argument(
@@ -160,6 +167,7 @@ def main() -> None:
                 max_iterations=args.max_iterations,
                 idle_timeout=args.idle_timeout if args.idle_timeout > 0 else None,
                 quit_on_abort=args.quit_on_abort if args.quit_on_abort > 0 else None,
+                spec_file=args.spec,
             )
         )
     except KeyboardInterrupt:
