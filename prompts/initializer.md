@@ -5,13 +5,13 @@ Your job is to set up the foundation for all future coding agents.
 
 ### FIRST: Read the Project Specification
 
-Start by reading `/.auto/spec.txt` in your working directory. This file contains
+Start by reading `/.aidd/spec.txt` in your working directory. This file contains
 the complete specification for what you need to build. Read it carefully
 before proceeding.
 
-### CRITICAL FIRST TASK: Create /.auto/feature_list.json
+### CRITICAL FIRST TASK: Create /.aidd/feature_list.json
 
-Based on `/.auto/spec.txt`, create a file called `/.auto/feature_list.json` with 200 detailed
+Based on `/.aidd/spec.txt`, create a file called `/.aidd/feature_list.json` with 200 detailed
 end-to-end test cases. This file is the single source of truth for what
 needs to be built.
 
@@ -62,7 +62,7 @@ needs to be built.
 - **steps**: Array of testing steps
 - **passes**: Whether the feature passes testing (boolean)
 
-**Requirements for /.auto/feature_list.json:**
+**Requirements for /.aidd/feature_list.json:**
 - Minimum 200 features total with testing steps for each
 - Use appropriate `area` and `category` for each feature
 - Mix of narrow tests (2-5 steps) and comprehensive tests (10+ steps)
@@ -75,36 +75,36 @@ Features can ONLY be marked as passing (change "passes": false to "passes": true
 Never remove features, never edit descriptions, never modify testing steps.
 This ensures no functionality is missed.
 
-### SECOND TASK: Create /.auto/init.sh
+### SECOND TASK: Create /.aidd/init.sh
 
-Create a script called `/.auto/init.sh` that future agents can use to quickly
+Create a script called `/.aidd/init.sh` that future agents can use to quickly
 set up and run the development environment. The script should:
 
 1. Install any required dependencies
 2. Start any necessary servers or services
 3. Print helpful information about how to access the running application
 
-Base the script on the technology stack specified in `/.auto/spec.txt`.
+Base the script on the technology stack specified in `/.aidd/spec.txt`.
 
 ### THIRD TASK: Initialize Git
 
 Create a git repository and make your first commit with:
-- /.auto/feature_list.json (complete with all 200+ features)
-- /.auto/init.sh (environment setup script)
+- /.aidd/feature_list.json (complete with all 200+ features)
+- /.aidd/init.sh (environment setup script)
 - README.md (project overview and setup instructions)
 
-Commit message: "Initial setup: /.auto/feature_list.json, /.auto/init.sh, and project structure"
+Commit message: "Initial setup: /.aidd/feature_list.json, /.aidd/init.sh, and project structure"
 
 ### FOURTH TASK: Create Project Structure
 
-Set up the basic project structure based on what's specified in `/.auto/spec.txt`.
+Set up the basic project structure based on what's specified in `/.aidd/spec.txt`.
 This typically includes directories for frontend, backend, and any other
 components mentioned in the spec.
 
 ### OPTIONAL: Start Implementation
 
 If you have time remaining in this session, you may begin implementing
-the highest-priority features from /.auto/feature_list.json. Remember:
+the highest-priority features from /.aidd/feature_list.json. Remember:
 - Work on ONE feature at a time
 - Test thoroughly before marking "passes": true
 - Commit your progress before session ends
@@ -113,8 +113,8 @@ the highest-priority features from /.auto/feature_list.json. Remember:
 
 Before your context fills up:
 1. Commit all work with descriptive messages
-2. Create `/.auto/claude-progress.txt` with a summary of what you accomplished
-3. Ensure /.auto/feature_list.json is complete and saved
+2. Create `/.aidd/claude-progress.txt` with a summary of what you accomplished
+3. Ensure /.aidd/feature_list.json is complete and saved
 4. Leave the environment in a clean, working state
 
 The next agent will continue from here with a fresh context window.

@@ -129,7 +129,7 @@ After running, your project directory will contain:
 
 ```
 my_project/
-├── .auto/                      # or .autok/ or .automaker/ (whichever is found/created)
+├── .aidd/                      # or .autok/ or .automaker/ (whichever is found/created)
 │   ├── feature_list.json         # Test cases (source of truth)
 │   ├── spec.txt                  # Copied specification
 │   ├── init.sh                   # Environment setup script

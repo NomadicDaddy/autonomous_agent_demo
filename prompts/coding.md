@@ -15,30 +15,30 @@ pwd
 ls -la
 
 # 3. Read the project specification to understand what you're building
-cat ./.auto/spec.txt
+cat ./.aidd/spec.txt
 
 # 4. Read the feature list to see all work
-cat ./.auto/feature_list.json | head -50
+cat ./.aidd/feature_list.json | head -50
 
 # 5. Read progress notes from previous sessions
-cat ./.auto/claude-progress.txt
+cat ./.aidd/claude-progress.txt
 
 # 6. Check recent git history
 git log --oneline -20
 
 # 7. Count remaining tests
-cat ./.auto/feature_list.json | grep '"passes": false' | wc -l
+cat ./.aidd/feature_list.json | grep '"passes": false' | wc -l
 ```
 
-Understanding the `/.auto/spec.txt` is critical - it contains the full requirements
+Understanding the `/.aidd/spec.txt` is critical - it contains the full requirements
 for the application you're building.
 
 ### STEP 2: START SERVERS (IF NOT RUNNING)
 
-If `/.auto/init.sh` exists, run it:
+If `/.aidd/init.sh` exists, run it:
 ```bash
-chmod +x ./.auto/init.sh
-./.auto/init.sh
+chmod +x ./.aidd/init.sh
+./.aidd/init.sh
 ```
 
 Otherwise, start servers manually and document the process.
@@ -68,7 +68,7 @@ For example, if this were a chat app, you should perform a test that logs into t
 
 ### STEP 4: CHOOSE ONE FEATURE TO IMPLEMENT
 
-Look at /.auto/feature_list.json and find the highest-priority feature with `"passes": false`.
+Look at /.aidd/feature_list.json and find the highest-priority feature with `"passes": false`.
 
 **Priority Order:**
 1. Features with `"priority": "critical"` first
@@ -116,7 +116,7 @@ Use browser automation tools:
 - Skip visual verification
 - Mark tests passing without thorough verification
 
-### STEP 7: UPDATE /.auto/feature_list.json (CAREFULLY!)
+### STEP 7: UPDATE /.aidd/feature_list.json (CAREFULLY!)
 
 **YOU CAN ONLY MODIFY THESE FIELDS:**
 
@@ -153,14 +153,14 @@ git commit -m "Implement [feature name] - verified end-to-end
 
 - Added [specific changes]
 - Tested with browser automation
-- Updated /.auto/feature_list.json: marked test #X as passing
+- Updated /.aidd/feature_list.json: marked test #X as passing
 - Screenshots in verification/ directory
 "
 ```
 
 ### STEP 9: UPDATE PROGRESS NOTES
 
-Update `/.auto/claude-progress.txt` with:
+Update `/.aidd/claude-progress.txt` with:
 - What you accomplished this session
 - Which test(s) you completed
 - Any issues discovered or fixed
@@ -171,8 +171,8 @@ Update `/.auto/claude-progress.txt` with:
 
 Before context fills up:
 1. Commit all working code
-2. Update /.auto/claude-progress.txt
-3. Update /.auto/feature_list.json if tests verified
+2. Update /.aidd/claude-progress.txt
+3. Update /.aidd/feature_list.json if tests verified
 4. Ensure no uncommitted changes
 5. Leave app in working state (no broken features)
 
@@ -204,7 +204,7 @@ Don't use the puppeteer "active tab" tool.
 
 **Quality Bar:**
 - Zero console errors
-- Polished UI matching the design specified in /.auto/spec.txt
+- Polished UI matching the design specified in /.aidd/spec.txt
 - All features work end-to-end through the UI
 - Fast, responsive, professional
 

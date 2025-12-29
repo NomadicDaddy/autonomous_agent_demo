@@ -80,6 +80,7 @@ def has_existing_codebase(project_dir: Path) -> bool:
 
     # Files to ignore when checking for existing code
     ignored_patterns = {
+        '.aidd',
         '.auto',
         '.autok',
         '.automaker',

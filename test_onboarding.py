@@ -26,13 +26,13 @@ def test_only_tracking_files():
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir)
 
-        # Create .auto directory with tracking files
-        auto_dir = project_dir / ".auto"
-        auto_dir.mkdir()
-        (auto_dir / "feature_list.json").write_text("{}")
-        (auto_dir / "spec.txt").write_text("spec")
-        (auto_dir / "init.sh").write_text("#!/bin/bash")
-        (auto_dir / "claude-progress.txt").write_text("progress")
+        # Create .aidd directory with tracking files
+        aidd_dir = project_dir / ".aidd"
+        aidd_dir.mkdir()
+        (aidd_dir / "feature_list.json").write_text("{}")
+        (aidd_dir / "spec.txt").write_text("spec")
+        (aidd_dir / "init.sh").write_text("#!/bin/bash")
+        (aidd_dir / "claude-progress.txt").write_text("progress")
 
         assert not has_existing_codebase(project_dir)
 
